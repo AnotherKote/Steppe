@@ -1,0 +1,13 @@
+./src/
+/snap/arduino/70/hardware/arduino/avr/cores/arduino/
+/snap/arduino/70/hardware/arduino/avr/variants/leonardo
+/snap/arduino/70/hardware/arduino/avr/libraries/EEPROM/src
+/snap/arduino/70/hardware/arduino/avr/libraries/HID/src
+/snap/arduino/70/hardware/arduino/avr/libraries/SPI/src
+/snap/arduino/70/hardware/arduino/avr/libraries/SoftwareSerial/src
+/snap/arduino/70/hardware/arduino/avr/libraries/Wire/src
+/snap/arduino/70/hardware/tools/avr/lib/gcc/avr/7.3.0/include
+/snap/arduino/70/hardware/tools/avr/lib/gcc/avr/7.3.0/include-fixed
+/snap/arduino/70/hardware/tools/avr/avr/include/
+/home/ivan/snap/arduino/70/Arduino/libraries/LiquidCrystal_I2C/
+src/Discharger_1.0
