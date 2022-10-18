@@ -9,5 +9,5 @@ const int SHUNT_RES = 10;
 
 const double VOLTAGE_HIGH_CUT = 4.1;
 const double VOLTAGE_LOW_CUT = 3.0;
-const double VOLTAGE_HYSTERESIS = 0.1;
+const double VOLTAGE_HYSTERESIS = 0.4;
 #endif // CONSTANTS_H

@@ -14,7 +14,6 @@ Battery g_battaries[] = {
     {5, A7}
 };
 
-
 const uint8_t BATTERIES_COUNT = sizeof(g_battaries) / sizeof(g_battaries[0]);
 
 uint8_t g_screen_page = 0;
@@ -59,35 +58,14 @@ void task_20_ms()
     check_buttons();
 }
 
-
-
 void loop()
 {
-//    g_lcd.setCursor(0, 0);
-//    g_lcd.print(String("Hello"));
-
-//    for (auto &battery : g_battaries) {
-//        auto value = analogRead(battery.adc_pin);
-//        Serial.print(String(value * V_REF / 1024) + ",");
-//        delay(200);
-
-////        static uint8_t counter = 0;
-////        auto &bat = g_battaries[counter % BATTERIES_COUNT];
-////        const uint8_t relay = (bat.state == BatteryState::DISCHARGING) ? LOW : HIGH;
-////        bat.state = (bat.state == BatteryState::DISCHARGING) ? BatteryState::STANDBY
-////                                                             : BatteryState::DISCHARGING;
-////        digitalWrite(bat.discharge_pin, relay);
-////        counter++;
-
-//    }
-//    Serial.print("\n");
-
     static unsigned long last_timepoint = millis();
     unsigned long cur_timepoint = millis();
 
     static unsigned long accum_100ms = 0;
     accum_100ms += cur_timepoint - last_timepoint;
-    if (accum_100ms >= 300) {
+    if (accum_100ms >= 150) {
         task_100_ms();
         accum_100ms = 0;
     }
@@ -100,11 +78,11 @@ void loop()
 void calculate_capacity()
 {
     for (auto &battery : g_battaries) {
-//        int32_t accum = 0;
-//        for (const auto &value : battery.raw_voltage) {
-//            accum += value;
-//        }
-        battery.voltage_V = static_cast<double>(battery.raw_voltage[0]) * V_REF / 1024;
+        int32_t accum = 0;
+        for (const auto &value : battery.raw_voltage) {
+            accum += value;
+        }
+        battery.voltage_V = static_cast<double>(accum / Battery::SAMPLES_SIZE) * V_REF / 1024;
 
         if (battery.state == BatteryState::DISCHARGING) {
             battery.current_mA = static_cast<int16_t>(battery.voltage_V / SHUNT_RES * 1000);
@@ -129,25 +107,22 @@ void calculate_capacity()
 void measure_voltage()
 {
     static uint8_t bat_num = 0;
+
     auto &battery = g_battaries[bat_num++];
     if (bat_num == BATTERIES_COUNT) {
         bat_num = 0;
     }
+
     static unsigned long last_timepoint = millis();
     unsigned long current_tp = millis();
     Serial.println("measure_voltage: " + String(current_tp - last_timepoint));
-    last_timepoint = current_tp;
-//    for (uint8_t i = 0; i < Battery::SAMPLES_SIZE; i++) {
-    battery.raw_voltage[0] = analogRead(battery.adc_pin);
-//        delay(20);
-//    }
-//    uint8_t cyclic_index = 0;
 
-//    cyclic_index = (cyclic_index == Battery::SAMPLES_SIZE - 1) ? 0 : cyclic_index + 1;
-//    for (auto &battery : g_battaries) {
-//        battery.raw_voltage[cyclic_index] = analogRead(battery.adc_pin);
-//    }
-//    cyclic_index = (cyclic_index == Battery::SAMPLES_SIZE - 1) ? 0 : cyclic_index + 1;
+    last_timepoint = current_tp;
+    for (uint8_t i = 0; i < Battery::SAMPLES_SIZE; i++) {
+        battery.raw_voltage[i] = analogRead(battery.adc_pin);
+        delay(10);
+    }
+//    battery.raw_voltage = analogRead(battery.adc_pin);
 }
 
 void handle_relays()
@@ -168,11 +143,11 @@ void handle_relays()
 
 void print_log(const Battery &battery)
 {
-//    Serial.print(String(battery.voltage_V) + ", " +
-//                 String(battery.current_mA) + ", " +
-//                 battery.capacity_mAh + ", " +
-//                 battery.total_time_ms + ", " +
-//                 static_cast<uint8_t>(battery.state) + ", ");
+    Serial.print(String(battery.voltage_V) + ", " +
+                 String(battery.current_mA) + ", " +
+                 battery.capacity_mAh + ", " +
+                 battery.total_time_ms + ", " +
+                 static_cast<uint8_t>(battery.state) + ", ");
 }
 
 void refresh_lcd()
@@ -180,7 +155,7 @@ void refresh_lcd()
     for (const auto &bat : g_battaries) {
         print_log(bat);
     }
-//    Serial.print("\n");
+    Serial.print("\n");
 
     static auto prev_page = g_screen_page;
     if (prev_page != g_screen_page) {
@@ -199,11 +174,11 @@ void refresh_lcd()
 
     static bool display_voltage = true;
     static unsigned long tp = millis();
-//    if (millis() - tp > 2000) {
-//        tp = millis();
-//        display_voltage = !display_voltage;
-//        lcd_clear_row();
-//    }
+    if (millis() - tp > 2000) {
+        tp = millis();
+        display_voltage = !display_voltage;
+        lcd_clear_row();
+    }
 
     if (display_voltage) {
         g_lcd.print((String(battery.voltage_V) + "V").c_str());

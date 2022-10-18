@@ -22,7 +22,7 @@ const char *toString(BatteryState s)
 
 struct Battery
 {
-    static const uint8_t SAMPLES_SIZE = 1;
+    static const uint8_t SAMPLES_SIZE = 4;
 
     double voltage_V = 0.0;
     int raw_voltage[SAMPLES_SIZE] = {0};
